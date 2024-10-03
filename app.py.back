@@ -1,0 +1,45 @@
+import streamlit as st
+import requests
+
+# Define the URL of your deployed API here
+API_URL = "https://guillaumeh-webapp-hzc5gudebnb5fcdy.northeurope-01.azurewebsites.net/predict"  # Replace with your actual API URL
+
+# this is the main function in which we define our webpage  
+def main():
+    st.markdown("# Wine Quality Prediction App 🍷🍇")
+    st.markdown("### This app is meant to predict red wine quality " +
+            "according to different chemical")
+
+    # slider version 
+    volatile_acidity = st.slider('Volatile Acidity', 0.0, 2.0, 0.319, 0.001)
+
+    st.text("User input: " + str(volatile_acidity))
+
+    alcohol = st.slider('Alcohol', 0.0, 16.0, 11.634, 0.01) 
+
+    st.text("User input: " + str(alcohol))
+
+    # Create a button to trigger the prediction
+    if st.button("Predict Wine Quality"):
+        # Prepare the data for the API request
+        data = {
+            'alcohol': alcohol,
+            'volatile_acidity': volatile_acidity
+        }
+
+        # Make the API request
+        response = requests.post(API_URL, headers={'accept': 'application/json', 'Content-Type': 'application/json'}, json=data)
+
+        print(response.text)
+
+        # Check for successful response
+        if response.status_code == 200:
+            prediction = response.json()
+            st.write(f"**Predicted Quality:** {prediction['prediction']}")
+            st.write(f"**Probability:** {prediction['probability'][prediction[0]]}")
+        else:
+            st.error(f"Error: API request failed with status code {response.status_code}")
+
+# Init code
+if __name__=='__main__': 
+    main()
